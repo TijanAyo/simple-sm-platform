@@ -4,7 +4,9 @@ import { PostService } from './post.service';
 
 @Controller('post')
 export class PostController {
-    constructor(private postService: PostService){}
+    constructor(
+        private postService: PostService
+    ){}
 
     @Get()
     getAllContent() {
@@ -30,7 +32,7 @@ export class PostController {
         return this.postService.updateContent(id, body);
     }
 
-    @Delete(':id')
+    @Delete('remove/:id')
     deleteContent(
         @Param('id') id:string
     ) {
