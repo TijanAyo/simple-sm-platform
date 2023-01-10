@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { AuthDto } from './dto';
 import * as bcrypt from 'bcrypt';
@@ -26,13 +26,24 @@ export class AuthService {
     }
 
     async signin(dto: AuthDto) {
+        const foundUser = await this.prisma.user.findUnique({ where: { email: dto.email } });
+        if(!foundUser) {
+            throw new NotFoundException("User does not exist");
+        }
+        const isMatch = await this.comparePassword(dto.password, foundUser.password);
+        if (!isMatch) {
+            throw new BadRequestException("Password does not match");
+        }
         return `You are going to sign in.`
     }
 
 
-    async hashPassword(password:string){
+    async hashPassword(password:string): Promise<string>{
         const saltOrRounds = 10;
-        const hashPassword = await bcrypt.hash(password, saltOrRounds);
-        return hashPassword;
+        return await bcrypt.hash(password, saltOrRounds);
+    }
+
+    async comparePassword(password:string, hash:string ): Promise<boolean> {
+        return await bcrypt.compare(password, hash);
     }
 }
