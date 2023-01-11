@@ -3,9 +3,17 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-
+import { JwtModule } from '@nestjs/jwt'
+import { jwtSecret } from '../utils/constants';
+import { JwtStrategy } from './strategy';
 @Module({
-  imports: [PrismaModule],
+  imports: [
+    PrismaModule,
+    JwtModule.register({
+      secret: jwtSecret.secret,
+      signOptions: { expiresIn: '60m' },
+    }),
+  ],
   controllers: [AuthController],
   providers: [
     {
@@ -14,7 +22,8 @@ import { AuthService } from './auth.service';
         return new PrismaClient();
       },
     },
-    AuthService
+    AuthService, 
+    JwtStrategy
   ]
 })
 export class AuthModule {}

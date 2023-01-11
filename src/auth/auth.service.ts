@@ -2,12 +2,15 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import { PrismaClient } from '@prisma/client';
 import { AuthDto } from './dto';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt'
+import { jwtSecret } from '../utils/constants';
 
 @Injectable()
 export class AuthService {
     constructor(
         @Inject('PrismaClient')
-        private prisma: PrismaClient
+        private prisma: PrismaClient,
+        private jwt: JwtService
     ) {}
 
     async signup(dto: AuthDto) {
@@ -34,9 +37,11 @@ export class AuthService {
         if (!isMatch) {
             throw new BadRequestException("Password does not match");
         }
-        return `You are going to sign in.`
+        const token = await this.signToken({ id: foundUser.id, email:foundUser.email });
+        return {
+            access_token: token,
+        }
     }
-
 
     async hashPassword(password:string): Promise<string>{
         const saltOrRounds = 10;
@@ -45,5 +50,10 @@ export class AuthService {
 
     async comparePassword(password:string, hash:string ): Promise<boolean> {
         return await bcrypt.compare(password, hash);
+    }
+
+    async signToken(args: { id: string, email: string}): Promise<string> {
+        const payload = args;
+        return this.jwt.signAsync(payload);
     }
 }
