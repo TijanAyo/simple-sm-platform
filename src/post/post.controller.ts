@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
-import { CreateContentDto } from './dto';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { JwtGuard } from 'src/user/guards';
+import { CreateContentDto, updateContentDto } from './dto';
 import { PostService } from './post.service';
-
+@UseGuards(JwtGuard)
 @Controller('post')
 export class PostController {
     constructor(
@@ -15,27 +16,29 @@ export class PostController {
 
     @Post('new')
     createContent(
-        @Body() body: CreateContentDto,
+        @Body() dto: CreateContentDto,
         @Req() req,
     ) {
         const userId = req.user.id
-        const newContent = this.postService.createContent(body, userId);
+        const newContent = this.postService.createContent(dto, userId);
         return newContent;
     }
 
 
-    @Patch(':id')
-    updateContent(
-        @Param('id') id:string,
-        @Body() body: CreateContentDto,
+    @Patch('update/:contentId')
+    async updateContent(
+        @Param('contentId') contentId:string,
+        @Body() dto: updateContentDto,
         ) {
-        return this.postService.updateContent(id, body);
+        await this.postService.updateContent(contentId, dto);
+        return { message: `Updated...`}
     }
 
-    @Delete('remove/:id')
-    deleteContent(
-        @Param('id') id:string
+    @Delete('remove/:contentId')
+    async deleteContent(
+        @Param('contentId') contentId:string
     ) {
-        return this.postService.deleteContent(id);
+        await this.postService.deleteContent(contentId);
+        return { message: `${contentId} has been deleted successfully`}
     }
 }

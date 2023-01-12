@@ -1,6 +1,6 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, InternalServerErrorException, BadRequestException, BadGatewayException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { CreateContentDto } from './dto';
+import { CreateContentDto, updateContentDto } from './dto';
 
 @Injectable()
 export class PostService {
@@ -25,19 +25,37 @@ export class PostService {
         return newContent;
     }
 
-    async updateContent(contentId: string, dto: CreateContentDto) {
-        const updatedContent = await this.prisma.content.update({
-            where: { id: contentId },
-            data: { ...dto }
-        });
-        return updatedContent
+    async updateContent(contentId: string, dto: updateContentDto) {
+        try {
+            const content = await this.prisma.content.findUnique({ where: { id: contentId }});
+            if (!content) {
+                throw new BadGatewayException(`${contentId} does not exist... Try again`);  
+            }
+            return await this.prisma.content.update({
+                where: { id: contentId },
+                data: {
+                    title: dto.title,
+                    body: dto.body
+                }
+            });
+        }
+        catch(err:any) {
+            throw new InternalServerErrorException(err.message);
+        }
     }
 
     async deleteContent(contentId: string) {
-        const deletedContent = await this.prisma.content.delete({
-            where: {id: contentId }
-        });
-        return deletedContent;
+        try {
+            const content = await this.prisma.content.findUnique({ where: {id: contentId }});
+            if(!content) {
+                throw new BadRequestException(`${contentId} does not exist... Try again`)
+            }
+            return await this.prisma.content.delete({
+                where: {id: contentId }
+            });
+        }
+        catch(err) {
+            throw new InternalServerErrorException(err.message)
+        }
     }
-
 }
