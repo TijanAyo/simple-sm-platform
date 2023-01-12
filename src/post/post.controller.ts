@@ -1,10 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger/dist/decorators';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger/dist/decorators';
 import { JwtGuard } from 'src/user/guards';
 import { CreateContentDto, updateContentDto } from './dto';
 import { PostService } from './post.service';
 
 @ApiTags('Posts')
+@ApiBearerAuth()
 @UseGuards(JwtGuard)
 @Controller('post')
 export class PostController {
