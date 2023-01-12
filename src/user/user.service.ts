@@ -51,7 +51,6 @@ export class UserService {
           data: { followers: { connect: { id: followerId } } },
         });
     }
-
     
     async unfollow(followerId: string, followeeId: string) {
         await this.prisma.user.update({
@@ -63,5 +62,4 @@ export class UserService {
             data: { followers: { disconnect: { id: followerId } } },
         });
     };
-    
 }

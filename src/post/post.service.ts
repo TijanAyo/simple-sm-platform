@@ -9,12 +9,12 @@ export class PostService {
         private prisma: PrismaClient
     ) {}
 
-    async findAllContent(): Promise<Object> {
+    async findAllContent() {
         const content = await this.prisma.content.findMany();
         return content;
     }
 
-    async createContent(dto: CreateContentDto, userId:string): Promise<any> {
+    async createContent(dto: CreateContentDto, userId:string) {
         const newContent = await this.prisma.content.create({
             data: {
                 title: dto.title,

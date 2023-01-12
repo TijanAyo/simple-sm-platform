@@ -31,7 +31,7 @@ export class UserController {
     async dislike(@Req() req:any, @Param('contentId') contentId: string) {
         const userId = req.user.id;
         await this.userService.downvote(userId, contentId);
-        return { message: 'Unliked'}
+        return { message: 'Dislike'}
     }
 
     @Post('follow/:userId')

@@ -22,7 +22,7 @@ export class PostController {
     @ApiOperation({ summary: 'Create content'})
     createContent(
         @Body() dto: CreateContentDto,
-        @Req() req,
+        @Req() req: any,
     ) {
         const userId = req.user.id
         const newContent = this.postService.createContent(dto, userId);
