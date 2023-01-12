@@ -1,7 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger/dist/decorators';
 import { JwtGuard } from 'src/user/guards';
 import { CreateContentDto, updateContentDto } from './dto';
 import { PostService } from './post.service';
+
+@ApiTags('Posts')
 @UseGuards(JwtGuard)
 @Controller('post')
 export class PostController {
@@ -10,11 +13,13 @@ export class PostController {
     ){}
 
     @Get()
+    @ApiOperation({ summary: 'Get all content'})
     getAllContent() {
         return this.postService.findAllContent();
     }
 
     @Post('new')
+    @ApiOperation({ summary: 'Create content'})
     createContent(
         @Body() dto: CreateContentDto,
         @Req() req,
@@ -26,6 +31,7 @@ export class PostController {
 
 
     @Patch('update/:contentId')
+    @ApiOperation({ summary: 'Update content'})
     async updateContent(
         @Param('contentId') contentId:string,
         @Body() dto: updateContentDto,
@@ -35,6 +41,7 @@ export class PostController {
     }
 
     @Delete('remove/:contentId')
+    @ApiOperation({ summary: 'Delete a content'})
     async deleteContent(
         @Param('contentId') contentId:string
     ) {
