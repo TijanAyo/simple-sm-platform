@@ -48,7 +48,6 @@ $ npx prisma studio
 
 ## Testing the api
 
-1. Via Postman Collection (#)
+1. Via Postman Collection (https://documenter.getpostman.com/view/19118409/2s8ZDR7kpJ)
 
 2. Via Swagger, viewing the api locally (http://localhost:4000/api-doc)
-
