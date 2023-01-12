@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException, InternalServerErrorException, BadRequestException, BadGatewayException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, InternalServerErrorException, BadRequestException, BadGatewayException, UnauthorizedException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { CreateContentDto, updateContentDto } from './dto';
 
@@ -25,37 +25,33 @@ export class PostService {
         return newContent;
     }
 
-    async updateContent(contentId: string, dto: updateContentDto) {
-        try {
-            const content = await this.prisma.content.findUnique({ where: { id: contentId }});
-            if (!content) {
-                throw new BadGatewayException(`${contentId} does not exist... Try again`);  
+    async updateContent(contentId: string, userId: string, dto: updateContentDto) {
+        const content = await this.prisma.content.findUnique({ where: { id: contentId }});
+        if (!content) {
+            throw new NotFoundException(`${contentId} does not exist... Try again`);  
+        }
+        if (content.userId !== userId) {
+            throw new UnauthorizedException(`You are not authorized to update this content`)
+        }
+        return await this.prisma.content.update({
+            where: { id: contentId },
+            data: {
+                title: dto.title,
+                body: dto.body
             }
-            return await this.prisma.content.update({
-                where: { id: contentId },
-                data: {
-                    title: dto.title,
-                    body: dto.body
-                }
-            });
-        }
-        catch(err:any) {
-            throw new InternalServerErrorException(err.message);
-        }
+        });
     }
 
-    async deleteContent(contentId: string) {
-        try {
-            const content = await this.prisma.content.findUnique({ where: {id: contentId }});
-            if(!content) {
-                throw new BadRequestException(`${contentId} does not exist... Try again`)
-            }
-            return await this.prisma.content.delete({
-                where: {id: contentId }
-            });
+    async deleteContent(contentId: string, userId: string) {
+        const content = await this.prisma.content.findUnique({ where: {id: contentId }});
+        if(!content) {
+            throw new NotFoundException(`${contentId} does not exist... Try again`)
         }
-        catch(err) {
-            throw new InternalServerErrorException(err.message)
+        if (content.userId !== userId) {
+            throw new UnauthorizedException(`You are not authorized to delete this content`)
         }
+        return await this.prisma.content.delete({
+            where: {id: contentId }
+        });
     }
 }

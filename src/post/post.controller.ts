@@ -35,17 +35,21 @@ export class PostController {
     async updateContent(
         @Param('contentId') contentId:string,
         @Body() dto: updateContentDto,
+        @Req() req:any
         ) {
-        await this.postService.updateContent(contentId, dto);
+        const userId = req.user.id  
+        await this.postService.updateContent(contentId, userId, dto);
         return { message: `Updated...`}
     }
 
     @Delete('remove/:contentId')
     @ApiOperation({ summary: 'Delete a content'})
     async deleteContent(
-        @Param('contentId') contentId:string
+        @Param('contentId') contentId:string,
+        @Req() req:any
     ) {
-        await this.postService.deleteContent(contentId);
+        const userId = req.user.id 
+        await this.postService.deleteContent(contentId, userId);
         return { message: `${contentId} has been deleted successfully`}
     }
 }
